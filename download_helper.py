@@ -43,14 +43,14 @@ def get_videos_from_channel(channel_name: str = ""):
     return video_ids
 
 
-def download_video(url: str = "", *quality):
+def download_video(url: str = "", quality=None):
     if not url:
         return "No URL provided."
     os.makedirs("videos", exist_ok=True)
     try:
         yt = YouTube(url)
         if quality:
-            yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
+            video_stream = yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
         else:
             video_stream = yt.streams.get_highest_resolution()
         output_video = yt.title.replace(" ", "_")
@@ -60,7 +60,7 @@ def download_video(url: str = "", *quality):
         _default_clients["ANDROID_EMBED"] = _default_clients["MWEB"]
         yt = YouTube(url)
         if quality:
-            yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
+            video_stream = yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
         else:
             video_stream = yt.streams.get_highest_resolution()
         output_video = yt.title.replace(" ", "_")
