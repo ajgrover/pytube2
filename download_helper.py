@@ -43,20 +43,26 @@ def get_videos_from_channel(channel_name: str = ""):
     return video_ids
 
 
-def download_video(url: str = ""):
+def download_video(url: str = "", *quality):
     if not url:
         return "No URL provided."
     os.makedirs("videos", exist_ok=True)
     try:
         yt = YouTube(url)
-        video_stream = yt.streams.get_highest_resolution()
+        if quality:
+            yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
+        else:
+            video_stream = yt.streams.get_highest_resolution()
         output_video = yt.title.replace(" ", "_")
         output_video = "".join([c for c in output_video if c.isalnum() or c in "._- "])
         video_stream.download(output_path="videos", filename=f"{output_video}.mp4")
     except:
         _default_clients["ANDROID_EMBED"] = _default_clients["MWEB"]
         yt = YouTube(url)
-        video_stream = yt.streams.get_highest_resolution()
+        if quality:
+            yt.streams.filter(progressive=True).filter(file_extension='mp4').filter(res=quality).last()
+        else:
+            video_stream = yt.streams.get_highest_resolution()
         output_video = yt.title.replace(" ", "_")
         output_video = "".join([c for c in output_video if c.isalnum() or c in "._- "])
         video_stream.download(output_path="videos", filename=f"{output_video}.mp4")
@@ -92,8 +98,12 @@ def download_videos_from_channels(channels=[]):
 def download_videos_from_list(filename="videos.txt"):
     with open(filename, "r") as f:
         links = f.read().splitlines()
-        for video in links:
-            download_video(url=video)
+        for line in links:
+            if "," in line:
+                video, quality = line.rsplit(",", 1)
+                download_video(url=video, quality=quality)
+            else:
+                download_video(url=line)
     return "Downloaded videos from list."
 
 
